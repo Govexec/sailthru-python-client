@@ -648,6 +648,29 @@ class SailthruClient(object):
 
         return True
 
+    def receive_update_post(self, post_params):
+        """
+        Update postbacks
+        """
+        if type(post_params) is dict:
+            required_params = ['action', 'email', 'sig']
+            if self.check_for_valid_postback_actions(required_params, post_params) is False:
+                return False
+        else:
+            return False
+
+        if post_params['action'] != 'update':
+            return False
+
+        signature = post_params['sig']
+        post_params = post_params.copy()
+        del post_params['sig']
+
+        if signature != get_signature_hash(post_params, self.secret):
+            return False
+
+        return True
+
     def check_for_valid_postback_actions(self, required_keys, post_params):
         """
         checks if post_params contain required keys
